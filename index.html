@@ -3,40 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Карта Нью-Йорка</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <title>3D карта Нью-Йорка</title>
+  <link href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; font-family: Arial, sans-serif; background: #111; }
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #111; }
     #map { width: 100%; height: 100vh; }
-    .title {
+    .panel {
       position: fixed;
-      z-index: 1000;
+      z-index: 10;
       top: 16px;
       left: 16px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: rgba(20,20,20,.9);
-      color: white;
-      box-shadow: 0 4px 18px rgba(0,0,0,.35);
-      font-size: 20px;
-      font-weight: 700;
+      width: min(360px, calc(100vw - 32px));
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(18,18,22,.92);
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
     }
-    .title small { display:block; margin-top:4px; font-size:12px; font-weight:400; opacity:.75; }
+    .title { font-size: 21px; font-weight: 700; }
+    .subtitle { margin-top: 4px; font-size: 12px; opacity: .72; }
+    .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px;
+      background: #2c2c34;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background: #3b3b45; }
+    .hint { margin-top: 10px; font-size: 11px; opacity: .6; line-height: 1.4; }
+    .maplibregl-popup-content { font-family: Arial, sans-serif; border-radius: 10px; }
   </style>
 </head>
 <body>
-  <div class="title">🗽 Нью-Йорк <small>Интерактивная карта</small></div>
-  <div id="map" aria-label="Интерактивная карта Нью-Йорка"></div>
+  <div class="panel">
+    <div class="title">🗽 Нью-Йорк — 3D</div>
+    <div class="subtitle">Интерактивная карта с объёмными зданиями</div>
+    <div class="buttons">
+      <button id="topView">Вид сверху</button>
+      <button id="cityView">3D город</button>
+      <button id="manhattan">Манхэттен</button>
+      <button id="liberty">Статуя Свободы</button>
+    </div>
+    <div class="hint">Перетаскивай карту мышью. Зажми правую кнопку мыши и двигай вверх/вниз, чтобы менять наклон.</div>
+  </div>
+  <div id="map" aria-label="3D карта Нью-Йорка"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
   <script>
-    const map = L.map('map', { zoomControl: true }).setView([40.7128, -74.0060], 12);
+    const manhattan = [-73.9857, 40.7484];
+    const liberty = [-74.0445, 40.6892];
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: manhattan,
+      zoom: 13.2,
+      pitch: 60,
+      bearing: -17,
+      antialias: true
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
     const places = [
       ['🗽 Статуя Свободы', 40.6892, -74.0445],
@@ -49,11 +82,48 @@
       ['🏟️ Yankee Stadium', 40.8296, -73.9262]
     ];
 
-    places.forEach(([name, lat, lon]) => {
-      L.marker([lat, lon]).addTo(map).bindPopup(`<b>${name}</b>`);
+    map.on('load', () => {
+      // Усиливаем 3D-эффект для слоёв зданий, если они присутствуют в стиле.
+      const layers = map.getStyle().layers || [];
+      const buildingLayers = layers.filter(layer => {
+        const id = (layer.id || '').toLowerCase();
+        const sourceLayer = (layer['source-layer'] || '').toLowerCase();
+        return id.includes('building') || sourceLayer.includes('building');
+      });
+
+      buildingLayers.forEach(layer => {
+        if (layer.type === 'fill' && layer.source) {
+          try {
+            map.setPaintProperty(layer.id, 'fill-extrusion-height', ['coalesce', ['get', 'render_height'], ['get', 'height'], 12]);
+            map.setPaintProperty(layer.id, 'fill-extrusion-base', ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0]);
+            map.setPaintProperty(layer.id, 'fill-extrusion-opacity', 0.9);
+          } catch (_) {}
+        }
+      });
+
+      places.forEach(([name, lat, lon]) => {
+        const marker = new maplibregl.Marker()
+          .setLngLat([lon, lat])
+          .setPopup(new maplibregl.Popup({ offset: 28 }).setHTML(`<strong>${name}</strong>`))
+          .addTo(map);
+      });
     });
 
-    L.control.scale({ imperial: true, metric: true }).addTo(map);
+    document.getElementById('topView').addEventListener('click', () => {
+      map.easeTo({ pitch: 0, bearing: 0, duration: 900 });
+    });
+
+    document.getElementById('cityView').addEventListener('click', () => {
+      map.easeTo({ center: manhattan, zoom: 14, pitch: 65, bearing: -17, duration: 1000 });
+    });
+
+    document.getElementById('manhattan').addEventListener('click', () => {
+      map.flyTo({ center: manhattan, zoom: 14.2, pitch: 65, bearing: -17, duration: 1200 });
+    });
+
+    document.getElementById('liberty').addEventListener('click', () => {
+      map.flyTo({ center: liberty, zoom: 15.5, pitch: 55, bearing: -10, duration: 1200 });
+    });
   </script>
 </body>
 </html>
