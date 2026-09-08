@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карта Нью-Йорка</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font-family: Arial, sans-serif; background: #111; }
+    #map { width: 100%; height: 100vh; }
+    .title {
+      position: fixed;
+      z-index: 1000;
+      top: 16px;
+      left: 16px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(20,20,20,.9);
+      color: white;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .title small { display:block; margin-top:4px; font-size:12px; font-weight:400; opacity:.75; }
+  </style>
+</head>
+<body>
+  <div class="title">🗽 Нью-Йорк <small>Интерактивная карта</small></div>
+  <div id="map" aria-label="Интерактивная карта Нью-Йорка"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map', { zoomControl: true }).setView([40.7128, -74.0060], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const places = [
+      ['🗽 Статуя Свободы', 40.6892, -74.0445],
+      ['🏙️ Таймс-сквер', 40.7580, -73.9855],
+      ['🌳 Центральный парк', 40.7829, -73.9654],
+      ['🏢 Эмпайр-стейт-билдинг', 40.7484, -73.9857],
+      ['🌉 Бруклинский мост', 40.7061, -73.9969],
+      ['🎨 Бруклин', 40.6782, -73.9442],
+      ['✈️ JFK', 40.6413, -73.7781],
+      ['🏟️ Yankee Stadium', 40.8296, -73.9262]
+    ];
+
+    places.forEach(([name, lat, lon]) => {
+      L.marker([lat, lon]).addTo(map).bindPopup(`<b>${name}</b>`);
+    });
+
+    L.control.scale({ imperial: true, metric: true }).addTo(map);
+  </script>
+</body>
+</html>
