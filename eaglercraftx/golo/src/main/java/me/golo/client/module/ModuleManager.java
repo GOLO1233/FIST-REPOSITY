@@ -14,6 +14,7 @@ public final class ModuleManager {
 
     public void register(Module module) {
         if (module == null) throw new IllegalArgumentException("module");
+        module.setId(1000 + modules.size());
         modules.add(module);
     }
 
@@ -35,5 +36,16 @@ public final class ModuleManager {
             if (module.category() == category) result.add(module);
         }
         return result;
+    }
+
+    public List<Module> getModules(ModuleCategory category) {
+        return byCategory(category);
+    }
+
+    public Module getById(int id) {
+        for (Module module : modules) {
+            if (module.getId() == id) return module;
+        }
+        return null;
     }
 }
