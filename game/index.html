@@ -3,26 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GOLO Client — 3D Game</title>
+<title>GOLO World — Voxel Survival</title>
 <link rel="stylesheet" href="game.css">
 </head>
 <body>
+<div id="loading"><div class="loading-box"><div class="brand">GOLO<span>WORLD</span></div><div class="loader"><i></i></div><div>Создание мира...</div></div></div>
+<div id="startScreen" class="screen"><div class="start-card"><div class="brand big">GOLO<span>WORLD</span></div><h1>ВОКСЕЛЬНЫЙ МИР</h1><p>Исследуй, ломай и строй свой мир.</p><button id="startBtn">ИГРАТЬ</button><div class="controls"><b>W A S D</b> — движение &nbsp; <b>SPACE</b> — прыжок &nbsp; <b>ЛКМ</b> — ломать &nbsp; <b>ПКМ</b> — ставить<br><b>E</b> — инвентарь &nbsp; <b>ESC / Right Shift</b> — GUI</div></div></div>
 <div id="hud">
-  <div class="logo">GOLO <span>CLIENT</span></div>
-  <div id="info">FPS: --<br>X: 0 Y: 0 Z: 0</div>
-  <div id="arraylist"></div>
+  <div class="top-brand">GOLO <small>WORLD</small></div>
+  <div id="stats">FPS: --<br>X: 0 Y: 0 Z: 0</div>
+  <div id="target">Блок: —</div>
   <div id="crosshair">+</div>
+  <div id="status"><span class="heart">♥</span><span id="hp">100</span> <span class="food">●</span><span id="food">100</span></div>
+  <div id="hotbar"></div>
+  <div id="tip">ЛКМ ломать • ПКМ ставить • E инвентарь</div>
 </div>
-<div id="clickgui" class="hidden">
-  <div class="panel">
-    <div class="panel-title">GOLO CLIENT <small>VISUALS</small></div>
-    <label><input type="checkbox" data-module="blockEsp" checked> Block ESP</label>
-    <label><input type="checkbox" data-module="oreEsp" checked> Ore ESP</label>
-    <label><input type="checkbox" data-module="tracers" checked> Tracers</label>
-    <label><input type="checkbox" data-module="hud" checked> HUD</label>
-    <div class="hint">Right Shift / Esc — открыть или закрыть</div>
-  </div>
-</div>
+<div id="inventory" class="overlay hidden"><div class="inventory-window"><div class="window-title">ИНВЕНТАРЬ <span>E / ESC</span></div><div id="invGrid"></div><div class="inventory-help">Выбери блок в хотбаре и используй ПКМ, чтобы строить.</div></div></div>
+<div id="clickgui" class="overlay hidden"><div class="click-window"><div class="window-title">GOLO WORLD <span>CLIENT</span></div><div class="tabs"><button class="tab active">ВИЗУАЛЫ</button><button class="tab">НАСТРОЙКИ</button></div><div class="module"><div><b>Block ESP</b><small>Подсветка блоков</small></div><input type="checkbox" data-module="blockEsp" checked></div><div class="module"><div><b>Ore ESP</b><small>Подсветка руды</small></div><input type="checkbox" data-module="oreEsp" checked></div><div class="module"><div><b>Tracers</b><small>Линии до руды</small></div><input type="checkbox" data-module="tracers"></div><div class="module"><div><b>HUD</b><small>Информация на экране</small></div><input type="checkbox" data-module="hud" checked></div><div class="module"><div><b>FPS Boost</b><small>Минимум эффектов</small></div><input type="checkbox" id="fpsBoost" checked></div><div class="gui-help">Right Shift / ESC — закрыть</div></div></div>
 <script type="module" src="game.js"></script>
 </body>
 </html>
