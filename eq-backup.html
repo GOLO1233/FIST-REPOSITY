@@ -5,27 +5,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pulse Music — EQ Backup</title>
 <style>
-body{margin:0;background:#09080d;color:#fff;font:16px system-ui;padding:24px}main{max-width:760px;margin:auto;background:#14111b;border:1px solid #30283d;border-radius:22px;padding:24px}h1{margin-top:0}button,label,.back{display:inline-block;padding:12px 16px;margin:6px 4px 6px 0;border-radius:11px;border:1px solid #443957;background:#8b5cf6;color:#fff;font-weight:700;cursor:pointer;text-decoration:none}input{display:none}.status{margin-top:18px;color:#aaa;line-height:1.5}.bands{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}.band{background:#0e0c13;padding:10px;border-radius:10px;text-align:center}.back{background:#211c2c}.danger{background:#33202a}.hint{color:#888;font-size:13px}.error{color:#ff8b8b}.ok{color:#9cffb0}@media(max-width:560px){body{padding:12px}.bands{grid-template-columns:repeat(2,1fr)}}
-</style>
+body{margin:0;background:#09080d;color:#fff;font:16px system-ui;padding:24px}main{max-width:760px;margin:auto;background:#14111b;border:1px solid #30283d;border-radius:22px;padding:24px}h1{margin-top:0}button,label,.back{display:inline-block;padding:12px 16px;margin:6px 4px 6px 0;border-radius:11px;border:1px solid #443957;background:#8b5cf6;color:#fff;font-weight:700;cursor:pointer;text-decoration:none}input{display:none}.status{margin-top:18px;color:#aaa;line-height:1.5}.bands{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}.band{background:#0e0c13;padding:10px;border-radius:10px;text-align:center}.back{background:#211c2c}.danger{background:#33202a}.hint{color:#888;font-size:13px}.error{color:#ff8b8b}.ok{color:#9cffb0}@media(max-width:560px){body{padding:12px}.bands{grid-template-columns:repeat(2,1fr)}}</style>
 </head>
 <body><main>
 <h1>🎚️ Pulse Music — EQ Backup</h1>
-<p>Здесь можно сохранить текущий EQ в JSON и загрузить его обратно.</p>
-<p class="hint">Поддерживаются 8 и 9 полос. Импорт проверяет значения от −12 до +12 dB.</p>
+<p>Твои 9 полос эквалайзера.</p>
+<p class="hint">60 −12 dB · 170 −8 dB · 310 0 dB · 600 +1 dB · 1000 +12 dB · 2500 0 dB · 5000 −12 dB · 10000 −12 dB · 16000 −12 dB</p>
 <div id="bands" class="bands"></div>
 <button id="save">💾 Сохранить EQ в файл</button>
 <label>📂 Загрузить EQ<input id="load" type="file" accept="application/json,.json"></label>
-<button id="reset" class="danger">↺ Сбросить EQ</button>
+<button id="reset" class="danger">↺ Вернуть мои значения</button>
 <a class="back" href="./">← Вернуться в Pulse Music</a>
 <div id="status" class="status"></div>
 </main>
 <script>
-const DEFAULT_FREQS=[60,170,310,600,1000,2500,5000,10000,16000],key="pm_eq",presetKey="pm_eq_preset",$=id=>document.getElementById(id);
-function normalize(v){if(Array.isArray(v))return v.map(Number);if(v&&Array.isArray(v.gains))return v.gains.map(Number);return null}
-function valid(a){return Array.isArray(a)&&a.length>=8&&a.length<=9&&a.every(v=>Number.isFinite(v)&&v>=-12&&v<=12)}
-function get(){try{const a=JSON.parse(localStorage.getItem(key)||"null");if(valid(a))return a}catch{}return Array(9).fill(0)}
-function draw(){const a=get();$("bands").innerHTML=a.map((v,i)=>'<div class="band"><b>'+DEFAULT_FREQS[i]+' Hz</b><br>'+Number(v).toFixed(0)+' dB</div>').join("");$("status").textContent="Текущий EQ: "+a.length+" полос."}
-$("save").onclick=()=>{try{const gains=get(),data={app:"Pulse Music",type:"equalizer",version:2,frequencies:DEFAULT_FREQS.slice(0,gains.length),gains,preset:localStorage.getItem(presetKey)||"custom",savedAt:new Date().toISOString()},blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="pulse-music-equalizer.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);$("status").innerHTML='<span class="ok">✅ Файл сохранён: pulse-music-equalizer.json</span>'}catch(e){$("status").innerHTML='<span class="error">❌ Не удалось сохранить: '+String(e.message||e)+'</span>'}};
-$("load").onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(String(r.result));const a=normalize(d);if(!valid(a))throw new Error("Нужен массив gains из 8 или 9 чисел от -12 до +12 dB");localStorage.setItem(key,JSON.stringify(a));if(d&&typeof d.preset==="string")localStorage.setItem(presetKey,d.preset);draw();$("status").innerHTML='<span class="ok">✅ EQ загружен! Обнови Pulse Music через Ctrl+F5 — значения применятся.</span>'}catch(e){$("status").innerHTML='<span class="error">❌ '+String(e.message||"Неверный JSON")+'</span>'}finally{e.target.value=""}};r.onerror=()=>$("status").innerHTML='<span class="error">❌ Не удалось прочитать файл.</span>';r.readAsText(f,"utf-8")};
-$("reset").onclick=()=>{localStorage.setItem(key,JSON.stringify(Array(9).fill(0)));localStorage.setItem(presetKey,"flat");draw();$("status").textContent="↺ EQ сброшен в Flat (0 dB)."};draw();
+const DEFAULT_FREQS=[60,170,310,600,1000,2500,5000,10000,16000],DEFAULT_EQ=[-12,-8,0,1,12,0,-12,-12,-12],key="pm_eq",presetKey="pm_eq_preset",$=id=>document.getElementById(id);
+function normalize(v){if(Array.isArray(v))return v.map(Number);if(v&&Array.isArray(v.gains))return v.gains.map(Number);if(v&&Array.isArray(v.bands))return v.bands.map(x=>Number(x.gain));return null}
+function valid(a){return Array.isArray(a)&&a.length===9&&a.every(v=>Number.isFinite(v)&&v>=-12&&v<=12)}
+function get(){try{const a=JSON.parse(localStorage.getItem(key)||"null");if(valid(a))return a}catch{}localStorage.setItem(key,JSON.stringify(DEFAULT_EQ));return DEFAULT_EQ.slice()}
+function draw(){const a=get();$("bands").innerHTML=a.map((v,i)=>'<div class="band"><b>'+DEFAULT_FREQS[i]+' Hz</b><br>'+Number(v).toFixed(0)+' dB</div>').join("");$("status").textContent="Текущий EQ: 9 полос."}
+$("save").onclick=()=>{try{const gains=get(),data={app:"Pulse Music",type:"equalizer",version:3,frequencies:DEFAULT_FREQS.slice(),gains,preset:"custom",savedAt:new Date().toISOString()},blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="pulse-music-equalizer.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);localStorage.setItem(key,JSON.stringify(gains));localStorage.setItem(presetKey,"custom");$("status").innerHTML='<span class="ok">✅ Сохранены все 9 полос.</span>'}catch(e){$("status").innerHTML='<span class="error">❌ Не удалось сохранить: '+String(e.message||e)+'</span>'}};
+$("load").onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(String(r.result)),a=normalize(d);if(!valid(a))throw new Error("Нужны ровно 9 значений от -12 до +12 dB");localStorage.setItem(key,JSON.stringify(a));localStorage.setItem(presetKey,"custom");draw();$("status").innerHTML='<span class="ok">✅ Все 9 значений загружены. Обнови Pulse Music через Ctrl+F5.</span>'}catch(e){$("status").innerHTML='<span class="error">❌ '+String(e.message||"Неверный JSON")+'</span>'}finally{e.target.value=""}};r.onerror=()=>$("status").innerHTML='<span class="error">❌ Не удалось прочитать файл.</span>';r.readAsText(f,"utf-8")};
+$("reset").onclick=()=>{localStorage.setItem(key,JSON.stringify(DEFAULT_EQ));localStorage.setItem(presetKey,"custom");draw();$("status").innerHTML='<span class="ok">✅ Установлены твои значения для всех 9 полос.</span>'};draw();
 </script></body></html>
