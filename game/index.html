@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GOLO Client — 3D Game</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<div id="hud">
+  <div class="logo">GOLO <span>CLIENT</span></div>
+  <div id="info">FPS: --<br>X: 0 Y: 0 Z: 0</div>
+  <div id="arraylist"></div>
+  <div id="crosshair">+</div>
+</div>
+<div id="clickgui" class="hidden">
+  <div class="panel">
+    <div class="panel-title">GOLO CLIENT <small>VISUALS</small></div>
+    <label><input type="checkbox" data-module="blockEsp" checked> Block ESP</label>
+    <label><input type="checkbox" data-module="oreEsp" checked> Ore ESP</label>
+    <label><input type="checkbox" data-module="tracers" checked> Tracers</label>
+    <label><input type="checkbox" data-module="hud" checked> HUD</label>
+    <div class="hint">Right Shift / Esc — открыть или закрыть</div>
+  </div>
+</div>
+<script type="module" src="game.js"></script>
+</body>
+</html>
