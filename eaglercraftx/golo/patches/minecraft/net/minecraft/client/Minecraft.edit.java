@@ -1,31 +1,27 @@
 # GOLO Client integration patch for EaglercraftX 1.8.8
 #
-# This patch is kept in the GOLO tree so it can be copied into the
-# EaglercraftX source tree under patches/minecraft/.
-# It adds the client initializer and opens ClickGUI with Right Shift.
+# This is an ADDITIVE patch fragment for the existing upstream
+# Minecraft.edit.java. Do not replace the upstream patch with this file.
+#
+# Safe client-side features: native GOLO ClickGUI, HUD/modules, and
+# keyboard handling. No server automation or anti-cheat bypass.
 
-> INSERT  1 : 4  @  1
+> INSERT  1 : 2  @  1
 +
 + import me.golo.client.GoloClient;
-+ import net.lax1dude.eaglercraft.v1_8.Keyboard;
 +
-+> INSERT  1 : 4  @  1
++> CHANGE  4 : 7  @  4 : 6
 +
-+ 	private void goloInit() {
-+ 		GoloClient.init();
-+ 	}
++~ 	private void startGame() throws IOException {
++~ 		this.gameSettings = new GameSettings(this);
++~ 		GoloClient.init();
++~ 		Config.setGameObj(this);
 +
-+> INSERT  1 : 7  @  1
-+
-+ 	private void goloHandleKeyboard() {
-+ 		while (Keyboard.next()) {
-+ 			if (Keyboard.getEventKeyState() && Keyboard.getEventKey() == 54) {
-+ 				GoloClient.toggleClickGui(this);
-+ 			}
-+ 		}
-+ 	}
-+
-+# IMPORTANT:
-+# Call goloInit() once from startGame() after gameSettings is created.
-+# Call goloHandleKeyboard() once per client tick in the existing keyboard
-+# event loop. EaglercraftX already exposes Keyboard in Minecraft.edit.java.
++# Keyboard hook:
++# Add this one line to the existing per-tick keyboard/event processing in
++# Minecraft.edit.java, after Minecraft's normal Keyboard.next() processing:
++#
++# 		GoloClient.handleKeyboard(this);
++#
++# GoloClient itself performs edge detection, so Right Shift opens/closes
++# the native GOLO ClickGUI only once per key press.
