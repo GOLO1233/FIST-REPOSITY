@@ -16,4 +16,8 @@ public enum ModuleCategory {
     public String displayName() {
         return displayName;
     }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }
