@@ -1,2 +1,0 @@
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-export class ModelLoader{loader=new GLTFLoader();models={pickaxe:undefined};constructor(onLoad){this.loader.load('https://raw.githubusercontent.com/dgreenheck/minecraft-threejs-clone/main/public/models/pickaxe.glb',model=>{this.models.pickaxe=model.scene;onLoad(this.models)})}}
